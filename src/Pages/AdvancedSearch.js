@@ -7,23 +7,34 @@ class AdvancedSearch extends React.Component{
     constructor(props){
         super(props)
         this.state = {
-            moviesArr: []
+            genreList: []
         }
     }
 
-    componentDidMount = (pageNum) => {
-        TMDBsearch({page:pageNum})
-        .then(res => {
-            console.log(res)
-            this.setState({
-                moviesArr: res
-            })
+    componentDidMount = async () => {
+        const res = await fetch('https://api.themoviedb.org/3/genre/movie/list?api_key=8d1b15ab645ee49f624b9cee8920214c&language=en-US')
+        const genreData = await res.json()
+        let genreName = []
+        await genreData.genres.map(genre => {
+            genreName.push(<option>{genre.name}</option>)
+        })
+        this.setState({
+            genreList: genreName
         })
     }
 
-    
+    getAdvancedSearchResults = async () => {
+        const res = await TMDBsearch(5)
+        console.log(res)
+
+    }
 
     render(){
+        const yearList = [];
+        const currentYear = new Date().getFullYear();
+        for(let i = currentYear; i >= currentYear - 120; i--){
+            yearList.push(<option>{i}</option>)
+        }
         return (
             <div>
                 <Container>
@@ -32,19 +43,20 @@ class AdvancedSearch extends React.Component{
                             <Form.Group as={Col} controlId="formGridState">
                             <Form.Control as="select" defaultValue="From Year">
                                 <option>From Year</option>
-                                <option>...</option>
+                                {yearList}
                             </Form.Control>
                             </Form.Group>
                             <Form.Group as={Col} controlId="formGridState">
                             <Form.Control as="select" defaultValue="To Year">
                                 <option>To Year</option>
-                                <option>...</option>
+                                {yearList}
+                                
                             </Form.Control>
                             </Form.Group>
                             <Form.Group as={Col} controlId="formGridState">
                             <Form.Control as="select" defaultValue="Genere">
                                 <option>Genere</option>
-                                <option>...</option>
+                                {this.state.genreList}
                             </Form.Control>
                             </Form.Group>
                             <Form.Group as={Col} controlId="formGridState">
@@ -61,7 +73,7 @@ class AdvancedSearch extends React.Component{
                             </Form.Group>
                         </Form.Row>
                         <div className="d-flex justify-content-center">
-                        <Button className="advanced-search-btn" variant="primary" type="submit">
+                        <Button onClick={this.getAdvancedSearchResults} className="advanced-search-btn" variant="primary" type="submit">
                             Submit
                         </Button>
                         </div>
